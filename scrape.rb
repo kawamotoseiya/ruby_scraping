@@ -1,6 +1,13 @@
 require 'net/http'
 
-url = 'https://masayuki14.github.io/pit-news/'
-uri = URI(url)
-html = Net::HTTP.get(uri)
-puts html
+def get_from(url)
+  Net::HTTP.get(URI(url))
+end
+
+def write_file(path, text)
+  File.open(path, 'w') { |file| file.write(text) }
+end
+
+html = get_from('https://masayuki14.github.io/pit-news/')
+
+write_file('pitnews.html', html)
