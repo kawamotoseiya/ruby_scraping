@@ -1,7 +1,11 @@
-pp $0
+require "optparse"
+opt = OptionParser.new
 
-pp ARGV.class
-pp ARGV
+params = {}
 
-ARGV.append('argument')
-pp $*
+opt.on("--infile=VAL")
+opt.on("--outfile=VAL")
+opt.on("--category=VAL")
+
+opt.parse!(ARGV,into:params)
+pp params

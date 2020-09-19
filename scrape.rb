@@ -1,6 +1,20 @@
 require 'net/http'
 require 'nokogiri'
 require 'json'
+require 'optparse'
+
+opt = OptionParser.new
+opt.on('--infile=VAL')
+opt.on('--outfile=VAL')
+opt.on('--category=VAL')
+
+params = {}
+opt.parse!(ARGV, into: params)
+
+if params[:infile] && params[:category]
+  puts 'Error: --infile と --category は同時に指定できません。'
+  exit(1)
+end
 
 def get_from(url)
     Net::HTTP.get(URI(url))
@@ -24,7 +38,27 @@ def scrape_section(section)
   }
 end
 
-html = File.read('pitnews.html')
+
+if params[:infile]
+  html = File.read(params[:infile])
+else
+  url = 'https://masayuki14.github.io/pit-news/'
+  if params[:category]
+    url = url + '?category=' + params[:category]
+  end
+end
+
+pp "debug print: url is: #{url}"
+  exit(1)
 doc = Nokogiri::HTML.parse(html, nil, 'utf-8')
 pitnews = doc.xpath('/html/body/main/section[position() > 1]').map { |section| scrape_section(section) }
-write_file('pitnews.json', {pitnews: pitnews}.to_json)
+
+if params[:outfile]
+  outfile = params[:outfile]
+else
+  outfile = 'pitnews.json'
+end
+
+write_file(outfile, {pitnews: pitnews}.to_json)
+
+
